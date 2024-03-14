@@ -6,4 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../WebLista.CrossCutting/WebLista.CrossCutting.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,1 +1,6 @@
 .idea/*
+/src/WebLista.Application/obj/*
+/src/WebLista.Blazor/obj/*
+/src/WebLista.CrossCutting/obj/*
+/src/WebLista.Domain/obj/*
+/src/WebLista.Infrastructure/obj/*

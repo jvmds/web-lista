@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../WebLista.Domain/WebLista.Domain.csproj" />
+    <ProjectReference Include="../WebLista.Application/WebLista.Application.csproj" />
+    <ProjectReference Include="../WebLista.Infrastructure/WebLista.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>
