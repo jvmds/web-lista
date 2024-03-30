@@ -1,7 +1,18 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Início</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<div class="container my-5">
+  <div class="p-5 text-center bg-body-tertiary rounded-3">
+    <img src="assets/images/icon.svg" alt="Imagem"/>
+    <h1 class="text-body-emphasis">Nunca foi tão fácil criar uma lista de presentes</h1>
+    <p class="col-lg-8 mx-auto fs-5 text-muted">
+      Crie aqui sua lista de presentes e compatilhes com seus convidados!
+    </p>
+    <div class="d-inline-flex gap-2 mb-5">
+      <NavLink class="d-inline-flex align-items-center btn btn-primary btn-lg px-4 rounded-pill" href="nova-lista">
+        Criar Lista
+      </NavLink>
+    </div>
+  </div>
+</div>

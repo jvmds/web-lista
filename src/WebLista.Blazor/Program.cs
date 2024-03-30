@@ -1,10 +1,14 @@
 using WebLista.Blazor.Components;
+using WebLista.CrossCutting.Dependencies;
+using WebLista.Infrastructure.Context;
 
 var builder = WebApplication.CreateBuilder(args);
+//CreateDatabase(builder);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -25,3 +29,10 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+
+static void CreateDatabase(IHost app)
+{
+    var serviceScope = app.Services.CreateScope();
+    var dataContext = serviceScope.ServiceProvider.GetService<WebListaDbContext>();
+    dataContext?.Database.EnsureCreated();
+}
