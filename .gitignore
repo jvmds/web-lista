@@ -4,3 +4,9 @@ src/WebLista.Blazor/obj/*
 src/WebLista.CrossCutting/obj/*
 src/WebLista.Domain/obj/*
 src/WebLista.Infrastructure/obj/*
+
+src/WebLista.Application/bin/*
+src/WebLista.Blazor/bin/*
+src/WebLista.CrossCutting/bin/*
+src/WebLista.Domain/bin/*
+src/WebLista.Infrastructure/bin/*
