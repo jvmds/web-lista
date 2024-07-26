@@ -8,4 +8,5 @@ public interface IGiftListRepository
     public Task UpdateAsync(GiftList giftList);
     public Task DeleteAsync(GiftList giftList);
     public Task<GiftList> GetAsync(int giftListId);
+    public Task<IList<GiftList>> GetGiftListByUserAsync(string userId);
 }

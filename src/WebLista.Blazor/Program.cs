@@ -1,43 +1,30 @@
-using Keycloak.AuthServices.Authentication;
-using Keycloak.AuthServices.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
+using WebLista.Blazor;
 using WebLista.Blazor.Components;
 using WebLista.CrossCutting.Dependencies;
-using WebLista.Infrastructure.Context;
+using WebLista.Domain.Abstractions;
+using WebLista.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+                .AddInteractiveServerComponents();
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddInfrastructure(builder.Configuration);
-// builder.Services.AddKeycloakAuthentication(new KeycloakAuthenticationOptions()
-// {
-//                 AuthServerUrl = builder.Configuration["Keycloak:auth-server-url"]!,
-//                 Realm = builder.Configuration["Keycloak:realm"]!,
-//                 Resource = builder.Configuration["Keycloak:resource"]!,
-//                 SslRequired = builder.Configuration["Keycloak:ssl-required"]!,
-//                 VerifyTokenAudience = false,
-// });
-// builder.Services.AddKeycloakAuthorization(new KeycloakProtectionClientOptions()
-// {
-//                 AuthServerUrl = builder.Configuration["Keycloak:auth-server-url"]!,
-//                 Realm = builder.Configuration["Keycloak:realm"]!,
-//                 Resource = builder.Configuration["Keycloak:resource"]!,
-//                 SslRequired = builder.Configuration["Keycloak:ssl-required"]!,
-//                 VerifyTokenAudience = false,
-// });
+builder.Services.AddScoped<IGiftListRepository, GiftListRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IStoreRepository, StoreRepository>();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                })
-                .AddCookie(opt =>
-                {
-                    opt.ExpireTimeSpan = TimeSpan.FromMinutes(1);
                 })
                 .AddOpenIdConnect(options =>
                 {
@@ -45,25 +32,22 @@ builder.Services.AddAuthentication(options =>
                     options.Authority =
                                     $"{builder.Configuration["Keycloak:auth-server-url"]}realms/{builder.Configuration["Keycloak:realm"]}";
                     options.ClientId = builder.Configuration["Keycloak:resource"];
-                    options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
+                    options.ResponseType = OpenIdConnectResponseType.Code;
                     options.UsePkce = true;
-                    options.Scope.Add("profile");
+                    options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.SaveTokens = true;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.RequireHttpsMetadata = false;
-                    options.TokenValidationParameters = new TokenValidationParameters() { RoleClaimType = "roles" };
+                    options.MapInboundClaims = false;
+                    options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+                    options.TokenValidationParameters.RoleClaimType = "roles";
+                })
+                .AddCookie(opt =>
+                {
+                    opt.ExpireTimeSpan = TimeSpan.FromMinutes(1);
                 });
-
-builder.Services.AddOidcAuthentication(options =>
-{
-    options.ProviderOptions.Authority = $"{builder.Configuration["Keycloak:auth-server-url"]}realms/{builder.Configuration["Keycloak:realm"]}";
-    options.ProviderOptions.ClientId = builder.Configuration["Keycloak:resource"];
-    options.ProviderOptions.MetadataUrl = $"{builder.Configuration["Keycloak:auth-server-url"]}realms/{builder.Configuration["Keycloak:realm"]}/.well-known/openid-configuration";
-    options.ProviderOptions.ResponseType = "id_token token";
-    options.UserOptions.RoleClaim = "roles";
-    options.UserOptions.ScopeClaim = "scope";
-});
-
+builder.Services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
+builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
@@ -77,8 +61,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-//app.UseCors(a => a.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseStaticFiles();
 app.UseAntiforgery();

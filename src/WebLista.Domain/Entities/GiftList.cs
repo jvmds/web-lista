@@ -7,11 +7,9 @@ public class GiftList
     
     public string Name {get; set;}
     
-    // Foreign key
-    public int UserId { get; set; }
+    // Foreign key externa
+    public Guid UserId { get; set; }
     
-    // Navigation properties
-    public virtual User User { get; set; }
     public virtual ICollection<Item> Items { get; private set; } = new HashSet<Item>();
     
     

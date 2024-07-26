@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebLista.Domain.Abstractions;
 using WebLista.Domain.Entities;
 using WebLista.Infrastructure.Context;
@@ -36,6 +37,15 @@ public class GiftListRepository(WebListaDbContext context) : IGiftListRepository
         {
             throw new InvalidOperationException("GiftList not found");
         }
+
+        return giftList;
+    }
+    
+    public async Task<IList<GiftList>> GetGiftListByUserAsync(string userId)
+    {
+        var giftList = await _context.GiftLists
+                        .Where(d => d.UserId == Guid.Parse(userId))
+                        .ToListAsync() ?? [];
 
         return giftList;
     }

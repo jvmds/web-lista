@@ -4,12 +4,10 @@
             <img class="logo" src="assets/images/icon.svg" alt="Icone do Site"/>
         </a>
     </div>
-    
     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-        <li><NavLink class="nav-link px-2 link-secondary" href="" Match="NavLinkMatch.All">Início</NavLink></li>
-        <li><NavLink class="nav-link px-2" href="buscar-listas">Buscar Lista</NavLink></li>
-        <li><NavLink class="nav-link px-2" href="ajuda">Ajuda</NavLink></li>
-        <li><NavLink class="nav-link px-2" href="sobre">Sobre</NavLink></li>
+        <li><NavLink class="nav-link px-2 link-secondary" href="@Navigation.BaseUri" Match="NavLinkMatch.All">Início</NavLink></li>
+        <li><NavLink class="nav-link px-2" href="buscar-listas" Match="NavLinkMatch.All">Buscar Lista</NavLink></li>
+        <li><NavLink class="nav-link px-2" href="ajuda" Match="NavLinkMatch.All">Ajuda</NavLink></li>
+        <li><NavLink class="nav-link px-2" href="sobre" Match="NavLinkMatch.All">Sobre</NavLink></li>
     </ul>
-    <LoginDisplay />
 </header>

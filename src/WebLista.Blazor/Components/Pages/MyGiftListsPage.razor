@@ -1,0 +1,85 @@
+@page "/gift-list"
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<PageTitle>Minhas Listas</PageTitle>
+
+<div class="container">
+  <div class="row">
+    @foreach (var gift in _giftLists)
+    {
+      <Card Class="m-3">
+          <CardBody>
+              <CardTitle>@gift.Name</CardTitle>
+              <CardText>Total de itens: @gift.Items.Count</CardText>
+              <Button Color="ButtonColor.Primary" To=@($"gift-list/{gift.GiftLisId}") Type="ButtonType.Link">Abrir</Button>
+              <Button Color="ButtonColor.Danger" To="#" Type="ButtonType.Link">Excluir</Button>
+          </CardBody>
+      </Card>
+    }
+    <Card Class="m-3">
+        <CardBody>
+          <CardTitle>Criar uma nova lista</CardTitle>
+          <Button Color="ButtonColor.Primary" @onclick="ShowModalAsync">Criar</Button>
+        </CardBody>
+    </Card>
+  </div>
+</div>
+
+<Modal @ref="_giftsListModal" Title="Criar nova lista" IsVerticallyCentered="true" Size="ModalSize.Large">
+    <BodyTemplate>
+        <EditForm Model="GiftListForm" FormName="NewGiftListForm" OnValidSubmit="CreateNewListAsync">
+            <DataAnnotationsValidator />
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    Digite o nome da lista:
+                    <InputText class="form-control" @bind-Value="GiftListForm.Name"/>
+                    <ValidationMessage For="@(() => GiftListForm.Name)" />
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <div class="col-md-10">
+                    <Button Color="ButtonColor.Secondary" @onclick="HideModalAsync" Class="float-end">Fechar</Button>
+                    <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" Class="float-end me-2">Criar</Button>
+                </div>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+
+
+@code {
+  [CascadingParameter]
+  private Task<AuthenticationState>? _authenticationState { get; set; }
+  private IList<GiftList> _giftLists = new List<GiftList>();
+
+  private Modal _giftsListModal = default!;
+  
+  [SupplyParameterFromForm(FormName = "NewGiftListForm")]
+  public GiftList GiftListForm { get; set; } = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    if (_authenticationState is not null)
+    {
+      var authState = await _authenticationState;
+      var userId = authState.User.FindFirst("sub");
+      if (userId is not null)
+      {
+        GiftListForm = new GiftList { UserId = Guid.Parse(userId.Value) };
+        _giftLists = await giftListRepository.GetGiftListByUserAsync(userId.Value);
+      }
+    }
+  }
+
+  private async Task CreateNewListAsync()
+  {
+    await giftListRepository.AddAsync(GiftListForm);
+    await HideModalAsync();
+    Navigation.NavigateTo($"/gift-list/{GiftListForm.GiftLisId}");
+  }
+  
+  private async Task ShowModalAsync() => await _giftsListModal.ShowAsync();
+  private async Task HideModalAsync() => await _giftsListModal.HideAsync();
+}

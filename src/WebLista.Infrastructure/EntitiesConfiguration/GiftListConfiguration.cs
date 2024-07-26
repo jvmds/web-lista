@@ -12,8 +12,6 @@ public class GiftListConfiguration : IEntityTypeConfiguration<GiftList>
         builder.Property(t => t.Name)
                         .HasMaxLength(100)
                         .IsRequired();
-        builder.HasOne(t => t.User)
-                        .WithMany(h => h.GiftLists)
-                        .HasForeignKey(t => t.UserId);
+        builder.HasIndex(t => t.UserId);
     }
 }

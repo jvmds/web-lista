@@ -1,0 +1,59 @@
+@rendermode InteractiveServer
+@using WebLista.Blazor.Dtos
+
+<Card Class="m-4" Style="width:25rem;">
+    <img class="mx-auto" src="@ItemModel.UrlImage" alt="@ItemModel.Description" style="width: 300px;height: 300px;object-fit: cover;"/>
+    <CardBody>
+        <CardTitle>@ItemModel.Name</CardTitle>
+        @* <CardSubTitle Class="mb-2 text-muted">Card subtitle</CardSubTitle> *@
+        <CardText>@ItemModel.Description</CardText>
+        @if (!ItemModel.Reserved)
+        {
+            <Button Color="ButtonColor.Primary" @onclick="ShowModalAsync" >Reservar</Button>
+        }
+    </CardBody>
+</Card>
+
+<Modal @ref="_reserveItemModal" Title="Reservar item" IsVerticallyCentered="true" Size="ModalSize.Large">
+    <BodyTemplate>
+        <EditForm Model="ReservationDto" FormName="ItemReservationForm" OnValidSubmit="ReserveItemShowAsync">
+            <DataAnnotationsValidator />
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    Digite seu e-mail:
+                    <InputText class="form-control" @bind-Value="ReservationDto.ReservationEmail"/>
+                    <ValidationMessage For="@(() => ReservationDto.ReservationEmail)" />
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <div class="col-md-10">
+                    <Button Color="ButtonColor.Secondary" @onclick="HideModalAsync" Class="float-end">Fechar</Button>
+                    <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" Class="float-end me-2">Reservar</Button>
+                </div>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+
+@code {
+
+    [Parameter] 
+    public Item ItemModel { get; set; } = new();
+
+    [SupplyParameterFromForm(FormName = "ItemReservationForm")]
+    public ReservationDto ReservationDto { get; set; } = new();
+
+    private Modal _reserveItemModal = default!;
+    
+    private async Task ReserveItemShowAsync()
+    {
+        ItemModel.Reserved = true; //ReservationDto.Reserved;
+        ItemModel.ReservationEmail = ReservationDto.ReservationEmail;
+        await itemRepository.UpdateAsync(ItemModel);
+        await HideModalAsync();
+    }
+
+    private async Task ShowModalAsync() => await _reserveItemModal.ShowAsync();
+    private async Task HideModalAsync() => await _reserveItemModal.HideAsync();
+}

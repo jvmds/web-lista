@@ -14,10 +14,13 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        @* <div class="col-md-4 text-end"> *@
-        @*     <a href="http://localhost:8080/realms/weblista/protocol/openid-connect/auth?client_id=weblista-app&redirect_uri=http://localhost:5036/signin-oidc&response_type=code" class="btn btn-outline-primary me-2">Entre</a> *@
-        @*     <a type="button" class="btn btn-primary">Cadastre-se</a> *@
-        @* </div> *@
-        <RedirectToLogin />
+        <div class="col-md-4 text-end">
+            @* <a href="@Configuration["Keycloak:auth-server-url"]realms/@Configuration["Keycloak:realm"]/protocol/openid-connect/auth?client_id=@Configuration["Keycloak:resource"]&redirect_uri=@Navigation.BaseUri>Entre</a> *@
+            @* <a type="button" class="btn btn-primary" onclick="">Cadastre-se</a> *@
+        </div>
     </NotAuthorized>
 </AuthorizeView>
+
+@code {
+    
+}

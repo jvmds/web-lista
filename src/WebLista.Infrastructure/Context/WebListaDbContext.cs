@@ -9,8 +9,6 @@ public class WebListaDbContext : DbContext
     {
         
     }
-    
-    public DbSet<User> Users { get; set; }
     public DbSet<GiftList> GiftLists { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Store> Stores { get; set; }

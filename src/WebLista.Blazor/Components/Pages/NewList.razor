@@ -1,9 +1,35 @@
 @page "/nova-lista"
+
 @attribute [Authorize]
 
-<PageTitle>Criar Lista</PageTitle>
-<h3>NewList</h3>
+@* <PageTitle>Criar Lista</PageTitle> *@
+@* $1$ <h1>@authMessage</h1> #1# *@
+@* <AuthorizeView> *@
+@*     <Authorized> *@
+@*         @foreach (var t in context.User.Claims) *@
+@*         { *@
+@*             <p>@t.Type : @t.Value</p> *@
+@*         } *@
+@*     </Authorized> *@
+@* </AuthorizeView> *@
+
 
 @code {
+    private Task<AuthenticationState>? authenticationState { get; set; }
     
+    protected override async Task OnInitializedAsync()
+    {
+        // await HttpContext.SignOutAsync();
+        // if (authenticationState is not null)
+        // {
+        //     var authState = await authenticationState;
+        //     var user = authState?.User;
+        //
+        //     if (user?.Identity is not null && user.Identity.IsAuthenticated)
+        //     {
+        //         //authMessage = $"{user.Identity} is authenticated.";
+        //     }
+        // }
+    }
+
 }

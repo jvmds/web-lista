@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebLista.Domain.Abstractions;
 using WebLista.Domain.Entities;
 using WebLista.Infrastructure.Context;
@@ -38,5 +39,14 @@ public class ItemRepository(WebListaDbContext context) : IItemRepository
         }
 
         return item;
+    }
+
+    public async Task<IList<Item>> GetItemsLinkedToGiftListAsync(int giftListId)
+    {
+        var items = await _context.Items
+                        .Where(i => i.GirftListId == giftListId)
+                        .ToListAsync()?? [];
+
+        return items;
     }
 }

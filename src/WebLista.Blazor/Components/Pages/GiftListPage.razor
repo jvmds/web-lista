@@ -1,0 +1,136 @@
+@page "/gift-list/{id:int}"
+@rendermode InteractiveServer
+@using System.Security.Claims
+
+@if (_giftList is not null)
+{
+    <PageTitle>@_giftList.Name</PageTitle>
+
+}
+<div class="container">
+    <div class="row">
+        @if (_giftList is not null)
+        {
+            <h3>@_giftList.Name</h3>
+        }
+    </div>
+    
+    <div class="row">
+        @foreach (var item in _items)
+        {
+            <CardItem ItemModel="@item"/>
+        }
+    </div>
+    <div class="row">
+        @if (Guid.TryParse(_userClaims?.Value, out var userId) && userId.Equals(_giftList?.UserId))
+            {
+                <Card Class="m-4" Style="width:25rem;">
+                    <CardBody>
+                        <CardTitle>Adicionar novo item</CardTitle>
+                        <Button Color="ButtonColor.Primary" @onclick="ShowModalAsync">Adicionar</Button>
+                    </CardBody>
+                </Card>
+            }
+    </div>
+</div>
+
+
+<Modal @ref="_itemModal" Title="Adicionar novo item" IsVerticallyCentered="true" Size="ModalSize.Large">
+    <BodyTemplate>
+        <EditForm Model="NewItem" FormName="NewItemForm" OnValidSubmit="CreateNewItemAsync">
+            <DataAnnotationsValidator/>
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    Nome:
+                    <InputText class="form-control m-1" @bind-Value="NewItem.Name"/>
+                    <ValidationMessage For="@(() => NewItem.Name)"/>
+                </label>
+            </div>
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    Descrição:
+                    <InputTextArea class="form-control m-1" @bind-Value="NewItem.Description"></InputTextArea>
+                    <ValidationMessage For="@(() => NewItem.Description)"/>
+                </label>
+            </div>
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    URL da Imagem:
+                    <InputText class="form-control m-1" @bind-Value="NewItem.UrlImage"></InputText>
+                    <ValidationMessage For="@(() => NewItem.UrlImage)"/>
+                </label>
+            </div>
+            <div class="form-group m-3">
+                <Switch @bind-Value="NewItem.Reserved" Label="Reservar"></Switch>
+            </div>
+            <div class="form-group m-3">
+                <label class="col-md-10">
+                    E-mail da reserva:
+                    <InputText class="form-control m-1" @bind-Value="NewItem.ReservationEmail"></InputText>
+                    <ValidationMessage For="@(() => NewItem.ReservationEmail)"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10">
+                    <Button Color="ButtonColor.Secondary" @onclick="HideModalAsync" Class="float-end">Fechar</Button>
+                    <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" Class="float-end me-2">Adicionar</Button>
+                </div>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+
+@code {
+    
+    [Parameter] 
+    public int Id { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState>? _authenticationState { get; set; }
+    
+    private IList<Item> _items = new List<Item>();
+    private GiftList? _giftList;
+
+    private Modal _itemModal = default!;
+    [SupplyParameterFromForm(FormName = "NewItemForm")]
+    public Item NewItem { get; set; } = new();
+    private Claim? _userClaims = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_authenticationState is not null)
+        {
+            var authState = await _authenticationState;
+            _userClaims = authState.User.FindFirst("sub");
+        }
+        
+         _giftList = await giftListRepository.GetAsync(Id);
+         if (_giftList is not null)
+         {
+             _items = await itemRepository.GetItemsLinkedToGiftListAsync(_giftList.GiftLisId);
+         }
+         else
+         {
+             Navigation.NavigateTo(Navigation.BaseUri);
+         }
+    }
+
+    private async Task CreateNewItemAsync()
+    {
+        if (_authenticationState is not null)
+        {
+            var authState = await _authenticationState;
+            var userId = authState.User.FindFirst("sub");
+            if (Guid.TryParse(userId?.Value, out var userIdCurrent) && userIdCurrent.Equals(_giftList?.UserId))
+            {
+                NewItem.GirftListId = _giftList.GiftLisId;
+                await itemRepository.AddAsync(NewItem);
+                await HideModalAsync();
+                Navigation.Refresh();
+            }
+        }
+    }
+    
+    private async Task ShowModalAsync() => await _itemModal.ShowAsync();
+    private async Task HideModalAsync() => await _itemModal.HideAsync();
+}
